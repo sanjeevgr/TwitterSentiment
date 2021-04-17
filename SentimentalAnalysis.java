@@ -1,80 +1,29 @@
-import java.io.*;
-import java.util.*;
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.mycompany.cse408groupproject;
+
+import java.util.HashMap;
 
 public class SentimentalAnalysis {
-	public SentimentalAnalysis(String fileName) throws IOException {
+    public SentimentalAnalysis(BagOfWords bag, HashMap<Integer,String> reverseLexicon, HashMap<String, Float> wordValue){
 
-		String STOP_WORDS = "stopWords.txt";
-		String BAG_OF_WORDS = "wordWithStrength.txt";
-		String tweet;
-
-		try{
-			// create stop-words
-			ArrayList<String> stopWords= new ArrayList<String>();
-			BufferedReader stop = new BufferedReader(new FileReader(STOP_WORDS));
-			String line = "";
-			while ((line = stop.readLine()) != null) {
-				stopWords.add(line);
-			}
-			stop.close();
-			//System.out.println(stopWords);
+        float tweetscore = 0;
 
 
-			// create lexicon
-			HashMap<String, String> map = new HashMap<String, String>();
-			BufferedReader in = new BufferedReader(new FileReader(BAG_OF_WORDS));
-			line = in.readLine();
-			while (line != null) {
-				String parts[] = line.split("\t");
-				map.put(parts[0], (parts[1]));
-				line = in.readLine();
-			}
-			in.close();
-			//System.out.println(map.toString());
-
-			Scanner inputStream = new Scanner(new FileReader(fileName));
-			while (inputStream.hasNextLine()) {
-				float tweetscore = 0;
-				tweet = inputStream.nextLine();
-				String[] word = tweet.split(" ");
-
-
-
-				for (int i = 0; i < word.length; i++) {
-					if (!stopWords.contains(word[i].toLowerCase())) {
-						if (map.get(word[i]) != null) {
-							String wordscore = map.get(word[i].toLowerCase());
-							tweetscore = (float) tweetscore + Float.parseFloat((wordscore));
-						}
-					}
-				}
-				Map < String, Float > sentiment = new HashMap < String, Float > ();
-				sentiment.put(tweet, tweetscore);
-				System.out.println(sentiment.toString()+"\n");
-			}
-
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-
+        for (int i = 0; i < bag.featureVector.length; i++) {
+            String key = reverseLexicon.get(i);
+            int count = bag.featureVector[i];
+            float value = 0;
+            
+            if(count > 0 && wordValue.containsKey(key))
+                tweetscore += (float) (count*wordValue.get(key));
+            // else if no key it would multiply by 0
         }
-	}
-
-	public static void main(String [] args)throws IOException{
-
-		String[] states = {
-			"Connecticut",
-			"Delaware",
-			"Maine",
-			"Maryland",
-			"Massachusetts",
-			"NewHampshire",
-			"NewJersey",
-			"NewYork",
-			"RhodeIsland",
-			"Vermont",
-		};
-
-		for(int i=0; i<states.length; i++)
-			new SentimentalAnalysis(states[i]+".csv");
-	}
+        //Map < String, Float > sentiment = new HashMap < String, Float > ();
+        //sentiment.put(tweet, tweetscore);
+        System.out.print(tweetscore);
+    }
 }
